@@ -1,4 +1,5 @@
 #!/bin/bash
+flag=false
 createproject(){
      {
     echo "#include <stdio.h>"
@@ -84,25 +85,44 @@ touch "$projectname/Makefile"
     ' > "$projectname/Makefile"
 }
 
-    while getopts ':p:l:' opt;
+    while getopts ':p:l:h' opt;
         do
             case $opt in
                 p)  
                     projectname=$OPTARG
                     createbasic
                     createmakefile
+                    flag=true
                 ;;
 
                 l)
+                    if [ "$flag" = false ]; then
+                        echo ""
+                        echo "Error: You need to specify a project name" 
+                        echo "Usage: $0 [-p projectname] [-l library] [-h]" 
+                        echo ""
+                        exit 1
+                    fi
                     set -f # disable glob
                     IFS=' ' # split on space characters
                     libraries+=($OPTARG)
                     createlibraries
                 ;;
-                
-                \?) 
-                    echo "Usage createc.sh -p [projectname] -l [\"your_libraries\"]"
-                    exit 1;;
+
+                h) 
+                    echo ""
+                    echo "This script is used to automatize the creation of c project "
+                    echo "script name : createc.sh "
+                    echo "flag Project : -p [projectname] (OBRIGATORY - create the project directory and the basic structure)"
+                    echo "flag Libraries : -l [\"your_libraries\"] (OPTIONAL - create libraries .h and .c files with the names choosen)"
+                    echo ""
+                ;;
+
+
+
             esac
         done
+
+
+
 shift $(($OPTIND - 1))
