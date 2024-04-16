@@ -55,34 +55,33 @@ createbasic(){
 createmakefile(){
 
 touch "$projectname/Makefile"
-    echo '
-    CC = clang
-    CFLAGS = -Wall -Wextra -Iinclude
-    SRC_DIR = src
-    INCLUDE_DIR = include
-    BUILD_DIR = build
-    TARGET = code
+   cat <<EOF > "$projectname/Makefile"
+CC = clang
+CFLAGS = -Wall -Wextra -Iinclude
+SRC_DIR = src
+INCLUDE_DIR = include
+BUILD_DIR = build
+TARGET = code
 
-    SRCS = $(wildcard $(SRC_DIR)/*.c)
-    OBJS = $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-    DEPS = $(wildcard $(INCLUDE_DIR)/*.h)
+SRCS := \$(wildcard \$(SRC_DIR)/*.c)
+OBJS := \$(patsubst \$(SRC_DIR)/%.c,\$(BUILD_DIR)/%.o,\$(SRCS))
+DEPS := \$(wildcard \$(INCLUDE_DIR)/*.h)
 
-    $(BUILD_DIR)/$(TARGET): $(OBJS)
-        $(CC) $(CFLAGS) -o $@ $^
+\$(BUILD_DIR)/\$(TARGET): \$(OBJS)
+\t\$(CC) \$(CFLAGS) -o \$@ \$^
 
-    $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
-        @mkdir -p $(BUILD_DIR)
-        $(CC) $(CFLAGS) -c -o $@ $<
+\$(BUILD_DIR)/%.o: \$(SRC_DIR)/%.c \$(DEPS)
+\t@mkdir -p \$(BUILD_DIR)
+\t\$(CC) \$(CFLAGS) -c -o \$@ \$<
 
-    run: $(BUILD_DIR)/$(TARGET)
-        @./$(BUILD_DIR)/$(TARGET)
+run: \$(BUILD_DIR)/\$(TARGET)
+\t@\$(BUILD_DIR)/\$(TARGET)
 
+clean:
+\trm -rf \$(BUILD_DIR)
 
-    clean:
-        rm -rf $(BUILD_DIR)
-
-    .PHONY: clean
-    ' > "$projectname/Makefile"
+.PHONY: clean
+EOF
 }
 
     while getopts ':p:l:h' opt;
